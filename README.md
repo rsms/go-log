@@ -8,6 +8,7 @@ Simple hierarchical Go logger
 - If the output writer is a TTY, use terminal colors (disable by unsetting `FColor`)
 - Hierarchical; `SubLogger` creates a logger with shared output, level and prefix
 
+
 ## Example
 
 ```go
