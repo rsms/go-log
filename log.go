@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// log levels
+// Level defines the log level
 type Level int
 
 const (
