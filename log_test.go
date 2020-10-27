@@ -1,12 +1,12 @@
 package log
 
 import (
-	"testing"
 	"bytes"
 	"io"
-	"os"
-	"time"
 	"math/rand"
+	"os"
+	"testing"
+	"time"
 
 	"github.com/rsms/go-testutil"
 )
@@ -30,22 +30,22 @@ func TestLog(t *testing.T) {
 	w := testConfigureRootLogger()
 
 	RootLogger.DisableFeatures(FColor)
-  RootLogger.EnableFeatures(FMicroseconds)
-  RootLogger.Level = LevelDebug
+	RootLogger.EnableFeatures(FMicroseconds)
+	RootLogger.Level = LevelDebug
 
-  fooLogger := SubLogger("[foo]")
+	fooLogger := SubLogger("[foo]")
 
-  timer := Time("time something")
-  Debug("Wild %#v", Things{})
-  Info("Hello")
-  Printf("Printf is the same as Info")
-  fooLogger.Warn("Danger, Will Robinson")
-  fooLogger.Error("I'm afraid I can't do that")
-  timer()
+	timer := Time("time something")
+	Debug("Wild %#v", Things{})
+	Info("Hello")
+	Printf("Printf is the same as Info")
+	fooLogger.Warn("Danger, Will Robinson")
+	fooLogger.Error("I'm afraid I can't do that")
+	timer()
 
-  Sync()
+	Sync()
 
-  // Expected output
+	// Expected output
 	expectedLines := []string{
 		"[debug] Wild log.Things{Field:0} (log_test.go",
 		"[info] Hello",
@@ -54,16 +54,16 @@ func TestLog(t *testing.T) {
 		"[error] [foo] I'm afraid I can't do that",
 		"[time] time something:",
 	}
-  lines := bytes.Split(w.Bytes(), []byte("\n"))
-  assert.Eq("num lines", len(expectedLines), len(lines) - 1) // -1 because last line is empty
-  for i, expectedPrefix := range expectedLines {
-  	lineWithoutTimestamp := lines[i][16:]
-  	expectLen, lineLen := len(expectedPrefix), len(lineWithoutTimestamp)
-  	if assert.Ok("len(lines[%d]) >= %d; got %d", lineLen >= expectLen, i, expectLen, lineLen) {
-		  assert.Eq("line %d", lineWithoutTimestamp[:len(expectedPrefix)], []byte(expectedPrefix), i)
+	lines := bytes.Split(w.Bytes(), []byte("\n"))
+	assert.Eq("num lines", len(expectedLines), len(lines)-1) // -1 because last line is empty
+	for i, expectedPrefix := range expectedLines {
+		lineWithoutTimestamp := lines[i][16:]
+		expectLen, lineLen := len(expectedPrefix), len(lineWithoutTimestamp)
+		if assert.Ok("len(lines[%d]) >= %d; got %d", lineLen >= expectLen, i, expectLen, lineLen) {
+			assert.Eq("line %d", lineWithoutTimestamp[:len(expectedPrefix)], []byte(expectedPrefix), i)
 		}
 	}
-  assert.Eq("last line is empty", lines[len(expectedLines)], []byte{})
+	assert.Eq("last line is empty", lines[len(expectedLines)], []byte{})
 }
 
 func TestLogSerialization(t *testing.T) {
@@ -117,9 +117,9 @@ func TestLogSerialization(t *testing.T) {
 	// verify that each line was written exactly once per goroutine
 	lines := bytes.Split(w.Bytes(), []byte("\n"))
 
-  if !assert.Eq("num lines", N*len(writeMessages), len(lines) - 1) { // -1 since last line is empty
-  	return
-  }
+	if !assert.Eq("num lines", N*len(writeMessages), len(lines)-1) { // -1 since last line is empty
+		return
+	}
 
 	seenmap := make(map[string][]string, N) // gorotineId => seenMessages
 	for i := 0; i < N*len(writeMessages); i++ {
