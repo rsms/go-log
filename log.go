@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -237,8 +238,21 @@ func (l *Logger) Infof(format string, v ...interface{})    { l.Info(format, v...
 func (l *Logger) Debugf(format string, v ...interface{})   { l.Debug(format, v...) }
 
 // GoLogger returns a go log.Logger that mirrors this logger.
-// Useful for APIs that specifically require a go Logger.
-func (l *Logger) GoLogger() *log.Logger {
+// Useful for APIs that specifically requires a go Logger.
+//
+// forLevel should be the level of logging that the Go logger will be used for.
+// For example, if this is to be used for debugging, call GoLogger(LevelDebug).
+// In case forLevel is less than l.Level a null logger is returned. This way the level of
+// the receiver has an effect on the Go logger.
+//
+// Example:
+//   logger.Level = log.LevelWarn
+//   goLoggerInfo := logger.GoLogger(log.LevelInfo)
+//   goLoggerWarn := logger.GoLogger(log.LevelWarn)
+//   goLoggerInfo.Printf("Hello")  // (nothing is printed)
+//   goLoggerWarn.Printf("oh no")  // "oh no" is printed
+//
+func (l *Logger) GoLogger(forLevel Level) *log.Logger {
 	var flag int
 	if l.Features&FDate != 0 {
 		flag |= log.Ldate
@@ -255,7 +269,11 @@ func (l *Logger) GoLogger() *log.Logger {
 	if l.Features&FDebugOrigin != 0 {
 		flag |= log.Lshortfile
 	}
-	return log.New(l.w, l.Prefix, flag)
+	w := l.w
+	if forLevel < l.Level {
+		w = ioutil.Discard
+	}
+	return log.New(w, l.Prefix, flag)
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
