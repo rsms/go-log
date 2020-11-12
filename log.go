@@ -42,7 +42,15 @@ const (
 	FColor                             // enable ANSI terminal colors
 	FColorAuto                         // enable FColor if w is TTY & env TERM supports colors
 
-	featMax      = 0xffff
+	fPrefixStart   = 0xff
+	fPrefixBitOffs = 8
+
+	FPrefixDebug = 1 << (fPrefixBitOffs + LevelDebug) // enable prefix for LevelDebug ("[debug]")
+	FPrefixInfo  = 1 << (fPrefixBitOffs + LevelInfo)  // enable prefix for LevelInfo ("[info]")
+	FPrefixWarn  = 1 << (fPrefixBitOffs + LevelWarn)  // enable prefix for LevelWarn ("[warn]")
+	FPrefixError = 1 << (fPrefixBitOffs + LevelError) // enable prefix for LevelError ("[error]")
+
+	fSyncStart   = 0xffff
 	fSyncBitOffs = 16
 
 	FSyncDebug = 1 << (fSyncBitOffs + LevelDebug) // write debug messages in a blocking fashion
@@ -51,7 +59,8 @@ const (
 	FSyncError = 1 << (fSyncBitOffs + LevelError) // write error messages in a blocking fashion
 
 	FSync    = FSyncDebug | FSyncInfo | FSyncWarn | FSyncError
-	FDefault = FTime | FDebugOrigin | FColorAuto
+	FDefault = FTime | FDebugOrigin | FColorAuto |
+		FPrefixDebug | FPrefixInfo | FPrefixWarn | FPrefixError
 )
 
 type Logger struct {
@@ -416,10 +425,12 @@ func (l *Logger) formatHeader(buf *[]byte, t time.Time, level Level) {
 			*buf = append(*buf, colorFgReset...)
 		}
 	}
-	if l.Features&FColor != 0 {
-		*buf = append(*buf, levelPrefixColor[level]...)
-	} else {
-		*buf = append(*buf, levelPrefixPlain[level]...)
+	if Features(1<<(fPrefixBitOffs+level))&l.Features != 0 {
+		if l.Features&FColor != 0 {
+			*buf = append(*buf, levelPrefixColor[level]...)
+		} else {
+			*buf = append(*buf, levelPrefixPlain[level]...)
+		}
 	}
 	if len(l.Prefix) > 0 {
 		*buf = append(*buf, l.Prefix...)
