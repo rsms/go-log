@@ -22,6 +22,8 @@ func main() {
 
   fooLogger := log.SubLogger("[foo]")
   fooLogger.Warn("Danger, Will Robinson")
+
+  log.Sync()
 }
 ```
 
