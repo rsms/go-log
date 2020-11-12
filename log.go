@@ -204,12 +204,12 @@ func (l *Logger) LogDebug(calldepth int, format string, v ...interface{}) {
 
 var initTime = time.Now()
 
-// Time starts a time measurement, logged when the returned function is invoked.
+// Time starts a time measurement, logged when the returned function is invoked. Uses LevelInfo.
 // Call the returned function to measure time taken since the call to l.Time and log a message.
 //   "thing with 123: 6.597116ms"
-// Time uses LevelInfo
 //
-// Example: Log time spent in a function:
+// Example: Measure time spent in a function:
+//
 //   func foo(thing int) {
 //     defer log.Time("foo with thing %d", thing)()
 //     ...
